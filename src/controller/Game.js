@@ -39,12 +39,10 @@ define([
 
   const control = function () {
     draw(ctx, ground, snake, food, score)
-
-    controlSnake()
-    controlFood()
+    controlGameObject()
   }
 
-  const controlSnake = function () {
+  const controlGameObject = function () {
     // old head position
     let snakeX = snake[0].x;
     let snakeY = snake[0].y;
@@ -57,15 +55,11 @@ define([
     snake.unshift(new ChildSnake(snakeX, snakeY))
     if (!isSankeEatFood()) {
       snake.pop()
-    }
-  }
-
-  const controlFood = function () {
-    if (isSankeEatFood()) {
+    } else {
       food.initPos()
+      score++
     }
   }
-
   const getSankeHeadPos = function () {
     return {
       x: snake[0].x,
