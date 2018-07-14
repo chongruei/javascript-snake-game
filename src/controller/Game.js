@@ -3,7 +3,7 @@ define([
   'model/Snake',
   'model/ChildSnake',
   'model/Direct',
-  '../action/Draw',
+  'action/Draw',
   'util/config'
 ], function (Food, Snake, ChildSnake, DIRS, draw, config) {
   const unit = config.unit
@@ -14,7 +14,7 @@ define([
   let snake = Snake
   let gameStarFlag
   let score = 0
-  let dir
+  let dirQueue = []
 
   const initSetting = function () {
     ground.src = 'image/background.jpg'
@@ -23,7 +23,7 @@ define([
   }
 
   const start = function () {
-    gameStarFlag = setInterval(running, 100) // 100 default game speed which means it has 10 fps (1000ms/100ms)
+    gameStarFlag = setInterval(running, 50) // 50 default game speed which means it has 10 fps (1000ms/50ms)
   }
 
   const end = function () {
@@ -31,26 +31,19 @@ define([
   }
 
   const running = function () {
-    if (isSnakeOverTheGround()) 
-      end()
-    else 
-      control()
+    isSnakeOverTheGround() ? end() : control()
   }
 
   const control = function () {
     draw(ctx, ground, snake, food, score)
     controlGameObject()
+    controlDirQueue()
   }
 
   const controlGameObject = function () {
-    // old head position
-    let snakeX = snake[0].x;
-    let snakeY = snake[0].y;
-
-    if (dir === DIRS.LEFT) snakeX -= unit
-    if (dir === DIRS.RIGHT) snakeX += unit
-    if (dir === DIRS.UP) snakeY -= unit
-    if (dir === DIRS.DOWN) snakeY += unit
+    let snakeNextPos = getSnakeNextPos()
+    let snakeX = snakeNextPos.x
+    let snakeY = snakeNextPos.y
 
     snake.unshift(new ChildSnake(snakeX, snakeY))
     if (!isSankeEatFood()) {
@@ -60,6 +53,28 @@ define([
       score++
     }
   }
+
+  const controlDirQueue = function () {
+    if (dirQueue.length > 1) dirQueue.shift()
+  }
+
+  const getSnakeNextPos = function () {
+    let snakeHead = getSankeHeadPos()
+    let snakeX = snakeHead.x;
+    let snakeY = snakeHead.y;
+    let dir = dirQueue[0]
+
+    if (dir === DIRS.LEFT) snakeX -= unit
+    if (dir === DIRS.RIGHT) snakeX += unit
+    if (dir === DIRS.UP) snakeY -= unit
+    if (dir === DIRS.DOWN) snakeY += unit
+
+    return {
+      x: snakeX,
+      y: snakeY
+    }
+  }
+
   const getSankeHeadPos = function () {
     return {
       x: snake[0].x,
@@ -87,19 +102,20 @@ define([
   }
 
   function direct(event) {
+    dir = dirQueue[0]
 
     switch (event.keyCode) {
       case 37:
-        if (dir !== DIRS.RIGHT) dir = DIRS.LEFT
+        if (dir !== DIRS.RIGHT) dirQueue.push(DIRS.LEFT)
         break
       case 38: 
-        if (dir !== DIRS.DOWN) dir = DIRS.UP
+        if (dir !== DIRS.DOWN) dirQueue.push(DIRS.UP)
         break
       case 39:
-        if (dir !== DIRS.LEFT) dir = DIRS.RIGHT
+        if (dir !== DIRS.LEFT) dirQueue.push(DIRS.RIGHT)
         break
       case 40:
-        if (dir !== DIRS.UP) dir = DIRS.DOWN
+        if (dir !== DIRS.UP) dirQueue.push(DIRS.DOWN)
         break
     }
   }
