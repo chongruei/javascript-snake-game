@@ -7,6 +7,7 @@ define([
   'util/config'
 ], function (Food, Snake, ChildSnake, DIRS, draw, config) {
   const unit = config.unit
+  const gameSpeed = config.game_speed;
   let canvas = document.getElementById('app')
   let ctx = canvas.getContext('2d')
   let ground = new Image()
@@ -23,7 +24,7 @@ define([
   }
 
   const start = function () {
-    gameStarFlag = setInterval(running, 50) // 50 default game speed which means it has 10 fps (1000ms/50ms)
+    gameStarFlag = setInterval(running, gameSpeed.normal)
   }
 
   const end = function () {
